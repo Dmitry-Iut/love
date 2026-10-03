@@ -21,6 +21,9 @@
   ];
   // =======================
 
+  // сцена сердца можно «поставить на паузу» на время игры (экономит батарею)
+  window.HeartScene = { paused: false };
+
   const BLUE_SHADES = ["#3b82f6", "#60a5fa", "#93c5fd", "#2563eb", "#bfdbfe", "#1d4ed8", "#ffffff"];
 
   const canvas = document.getElementById("c");
@@ -147,7 +150,15 @@
   // ----- стихотворение -----
   const poemEl = document.getElementById("poem");
   const hintEl = document.getElementById("hint");
-  let lineIndex = 0;
+  const playBtn = document.getElementById("playBtn");
+  let lineIndex = 0, playShown = false;
+
+  function showPlayButton() {
+    if (playShown) return;
+    playShown = true;
+    playBtn.classList.remove("hidden");
+    window.SFX && SFX.sparkle();
+  }
 
   function showLine() {
     poemEl.querySelectorAll(".line:not(.out)").forEach(el => {
@@ -155,6 +166,10 @@
       setTimeout(() => el.remove(), 320);
     });
     const [text, emoji, sign] = POEM[lineIndex];
+    if (lineIndex === POEM.length - 1 && !playShown) {
+      // последняя строка (подпись) показана — через её 3 секунды появится кнопка игры
+      setTimeout(showPlayButton, CONFIG.lineSeconds * 1000);
+    }
     lineIndex = (lineIndex + 1) % POEM.length;
     const el = document.createElement("div");
     el.className = "line" + (sign ? " sign" : "");
@@ -168,12 +183,19 @@
   canvas.addEventListener("pointerdown", e => {
     e.preventDefault();
     window.Music && window.Music.start();
+    window.SFX && SFX.tap();
     spawnHeartBurst(e.clientX, e.clientY);
     showLine();
     hintEl.style.opacity = 0;
   });
   document.addEventListener("touchmove", e => e.preventDefault(), { passive: false });
   document.addEventListener("gesturestart", e => e.preventDefault());
+
+  playBtn.addEventListener("click", () => {
+    window.Music && Music.start();
+    window.SFX && SFX.button();
+    window.Game && Game.open();
+  });
 
   const muteBtn = document.getElementById("mute");
   muteBtn.addEventListener("pointerdown", e => {
@@ -199,8 +221,12 @@
     ctx.restore();
   }
 
-  let t = 0;
-  function frame() {
+  let t = 0, lastTs = 0;
+  function frame(ts) {
+    requestAnimationFrame(frame);
+    if (window.HeartScene.paused) return;       // игра открыта — не рисуем
+    if (ts - lastTs < 12) return;               // не быстрее ~60 кадров/с
+    lastTs = ts;
     t++;
     ctx.globalCompositeOperation = "source-over";
     ctx.globalAlpha = 1;
@@ -215,7 +241,6 @@
     for (const p of burstParticles) { p.update(t); p.draw(); }
     burstParticles = burstParticles.filter(p => !p.dead);
     ctx.globalAlpha = 1;
-    requestAnimationFrame(frame);
   }
-  frame();
+  requestAnimationFrame(frame);
 })();

@@ -8,7 +8,9 @@ html, body {
   font-family: -apple-system, "SF Pro Display", system-ui, sans-serif;
 }
 
-canvas {
+.hidden { display: none !important; }
+
+canvas#c {
   position: fixed; inset: 0;
   width: 100%; height: 100%;
   display: block; touch-action: none;
@@ -25,18 +27,32 @@ canvas {
 #mute {
   position: fixed;
   top: calc(env(safe-area-inset-top, 0px) + 10px);
-  right: 14px; z-index: 5;
+  right: 14px; z-index: 50;                       /* поверх игры и приза */
   width: 40px; height: 40px; border-radius: 50%;
   border: 1px solid rgba(147, 197, 253, .35);
   background: rgba(15, 30, 70, .45);
   color: #fff; font-size: 18px; line-height: 1;
-  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
 }
+
+/* Кнопка «Играть» — появляется после первого прогона стихотворения */
+#playBtn {
+  position: fixed; left: 50%; transform: translateX(-50%);
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 5vh);
+  padding: 15px 38px; border: 0; border-radius: 30px;
+  font-size: 20px; font-weight: 700; color: #fff; letter-spacing: .03em;
+  background: linear-gradient(135deg, #3b82f6, #ec4899);
+  box-shadow: 0 0 22px rgba(59, 130, 246, .7), 0 6px 18px rgba(236, 72, 153, .45);
+  touch-action: manipulation;
+  animation: playIn .7s cubic-bezier(.3, 1.6, .5, 1), playPulse 1.8s ease-in-out .7s infinite;
+}
+@keyframes playIn { from { opacity: 0; transform: translateX(-50%) translateY(30px) scale(.7); } }
+@keyframes playPulse { 50% { box-shadow: 0 0 34px rgba(96, 165, 250, .95), 0 6px 24px rgba(236, 72, 153, .7); } }
 
 /* Строка стихотворения: появляется, держится 3 секунды, исчезает */
 #poem {
   position: fixed; left: 0; right: 0;
-  bottom: calc(env(safe-area-inset-bottom, 0px) + 9vh);
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 16vh);
   display: flex; justify-content: center;
   padding: 0 22px; pointer-events: none;
 }
