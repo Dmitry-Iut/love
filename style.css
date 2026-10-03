@@ -1,0 +1,68 @@
+html, body {
+  margin: 0; padding: 0; height: 100%;
+  background: #000; overflow: hidden;
+  overscroll-behavior: none;
+  -webkit-user-select: none; user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+  font-family: -apple-system, "SF Pro Display", system-ui, sans-serif;
+}
+
+canvas {
+  position: fixed; inset: 0;
+  width: 100%; height: 100%;
+  display: block; touch-action: none;
+}
+
+#hint {
+  position: fixed; left: 0; right: 0;
+  top: calc(env(safe-area-inset-top, 0px) + 18px);
+  text-align: center; color: #93c5fd; opacity: .8;
+  font-size: 14px; letter-spacing: .06em;
+  pointer-events: none; transition: opacity 1.2s;
+}
+
+#mute {
+  position: fixed;
+  top: calc(env(safe-area-inset-top, 0px) + 10px);
+  right: 14px; z-index: 5;
+  width: 40px; height: 40px; border-radius: 50%;
+  border: 1px solid rgba(147, 197, 253, .35);
+  background: rgba(15, 30, 70, .45);
+  color: #fff; font-size: 18px; line-height: 1;
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+}
+
+/* Строка стихотворения: появляется, держится 3 секунды, исчезает */
+#poem {
+  position: fixed; left: 0; right: 0;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 9vh);
+  display: flex; justify-content: center;
+  padding: 0 22px; pointer-events: none;
+}
+
+.line {
+  position: absolute; bottom: 0;
+  max-width: 90vw; text-align: center;
+  color: #e0f2fe;
+  font-size: clamp(22px, 6.2vw, 34px); font-weight: 300; line-height: 1.3;
+  letter-spacing: .03em;
+  text-shadow: 0 0 10px #3b82f6, 0 0 24px #2563eb, 0 2px 8px #000;
+  opacity: 0;
+  animation: lineLife 3s ease-in-out forwards;
+}
+
+.line.sign { font-style: italic; color: #bfdbfe; }
+
+.line.out { animation: lineOut .3s ease-out forwards; }
+
+@keyframes lineLife {
+  0%   { opacity: 0; transform: translateY(14px) scale(.96); filter: blur(4px); }
+  15%  { opacity: 1; transform: translateY(0) scale(1);      filter: blur(0); }
+  85%  { opacity: 1; transform: translateY(0) scale(1);      filter: blur(0); }
+  100% { opacity: 0; transform: translateY(-10px) scale(1.02); filter: blur(3px); }
+}
+
+@keyframes lineOut {
+  to { opacity: 0; transform: translateY(-8px); filter: blur(3px); }
+}
